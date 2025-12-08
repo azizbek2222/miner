@@ -1,250 +1,317 @@
-<!DOCTYPE html><html lang="uz">
+<!DOCTYPE html>
+<html lang="uz">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta charset="UTF-8" />
-<title>STAR AI</title>
-<style>/* --------------------- GLOBAL --------------------- */
-body {
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #0f0f1a, #1a1a2e, #16213e);
-    background-size: 300% 300%;
-    animation: bgMove 10s infinite alternate;
-    font-family: "Poppins", sans-serif;
-    color: #fff;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Nexalum (NXL) Hamyoni - API Kirish</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        /* Asosiy Dizayn va O'zgaruvchilar */
+        :root {
+            --primary-color: #00796B; /* To'q Yashil */
+            --secondary-color: #26A69A; /* Ochiq Yashil */
+            --background-color: #f0f4f7;
+            --text-color: #333;
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.15); /* Shaffof oq */
+            --dark-glass-bg: rgba(0, 0, 0, 0.1); /* Shaffof qora */
+        }
 
-@keyframes bgMove {
-    0% { background-position: left; }
-    100% { background-position: right; }
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Gorizontal skrollni o'chirish */
+            overflow-x: hidden; 
+            background: linear-gradient(135deg, #1f2b40 0%, #00796B 100%); /* Chuqur fon */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white; /* Barcha matnni oq qilish */
+            backdrop-filter: blur(5px);
+        }
 
-/* --------------------- MAIN BOX --------------------- */
-.chat-box {
-    width: 400px;
-    height: 630px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 22px;
-    backdrop-filter: blur(15px);
-    box-shadow: 0 0 25px rgba(0,0,0,0.6), 
-                0 0 10px rgba(0, 255, 255, 0.2);
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(255,255,255,0.1);
-    overflow: hidden;
-    animation: boxFade 0.7s ease;
-}
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            /* Mobil qurilmalarda tashqariga chiqib ketishni oldini olish */
+            box-sizing: border-box; 
+        }
+        
+        /* Glassmorphism/Shaffof Kartalar Usuli */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px); /* Orqa fonni siyqallash */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            color: white;
+        }
 
-@keyframes boxFade {
-    from { transform: scale(.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
+        /* Kirish Formasi */
+        .auth-container {
+            text-align: center;
+        }
 
-/* --------------------- MESSAGES AREA --------------------- */
-.messages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-}
+        .auth-container h2 {
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
 
-.msg {
-    max-width: 70%;
-    padding: 12px 14px;
-    margin: 10px 0;
-    border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    font-size: 15px;
-    animation: slideUp .3s ease;
-}
+        .auth-container input[type="text"] {
+            width: 90%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 1em;
+            background: rgba(0, 0, 0, 0.2); /* Yozish maydonini ham shaffof qilish */
+            color: white;
+            font-family: monospace; /* Kalitni o'qish uchun */
+        }
+        .auth-container input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
 
-@keyframes slideUp {
-    from { transform: translateY(15px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+        .auth-container button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 90%;
+            font-size: 1.1em;
+            margin-top: 10px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
 
-.user {
-    background: linear-gradient(135deg, #00e676, #00c853);
-    color: #000;
-    align-self: flex-end;
-    border-bottom-right-radius: 2px;
-}
+        .login-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            margin-bottom: 15px;
+        }
+        .login-btn:hover {
+            background-color: #00E676;
+            transform: translateY(-2px);
+        }
 
-.bot {
-    background: linear-gradient(135deg, #00bcd4, #2196f3);
-    border-bottom-left-radius: 2px;
-}
+        .register-btn {
+            background-color: transparent;
+            border: 2px solid var(--secondary-color) !important;
+            color: var(--secondary-color);
+        }
+        .register-btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
 
-/* --------------------- INPUT AREA --------------------- */
-.input-area {
-    padding: 12px;
-    display: flex;
-    backdrop-filter: blur(10px);
-    background: rgba(0,0,0,0.3);
-    border-top: 1px solid rgba(255,255,255,0.1);
-}
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        .error-message {
+            color: #FFCDD2; /* Ochiq qizil */
+        }
 
-input {
-    flex: 1;
-    padding: 12px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 12px;
-    color: #fff;
-    outline: none;
-    font-size: 15px;
-    transition: .2s;
-}
+        /* YANGI KALIT CHIQARISH BLOKI STILI */
+        #new-key-display {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px dashed rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none; /* Dastlab yashirish */
+        }
+        #generated-key {
+            font-family: monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .copy-btn {
+            background-color: #FFB300; /* Sariq/Jozibali rang */
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            width: auto !important;
+        }
+        .copy-btn:hover {
+            background-color: #FFD54F;
+        }
+        
+        /* ==================== WALLET VIEW STYLES ==================== */
 
-input:focus {
-    border-color: #00e676;
-    box-shadow: 0 0 8px #00e676;
-}
-
-button {
-    padding: 12px 16px;
-    margin-left: 10px;
-    background: linear-gradient(135deg, #00e5ff, #2979ff);
-    border: none;
-    border-radius: 12px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: .2s;
-}
-
-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px #00e5ff;
-}
-
-/* --------------------- TYPING EFFECT --------------------- */
-.typing {
-    width: 80px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 14px;
-    margin-top: 10px;
-    animation: fadeTyping .4s ease;
-}
-
-@keyframes fadeTyping {
-    from { transform: scale(.5); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-.dot {
-    width: 9px;
-    height: 9px;
-    background: #00e5ff;
-    border-radius: 50%;
-    animation: pulse 1s infinite;
-}
-
-.dot:nth-child(2) { animation-delay: .2s; }
-.dot:nth-child(3) { animation-delay: .4s; }
-
-@keyframes pulse {
-    0% { transform: scale(.8); opacity: .4; }
-    50% { transform: scale(1.3); opacity: 1; }
-    100% { transform: scale(.8); opacity: .4; }
-}
-
-</style>
+        /* Bular endi faqat "wallet.html" da bo'lishi kerak. Bu faylda ularni yashiramiz */
+        #wallet-view {
+             display: none;
+        }
+    </style>
 </head>
-<body><div class="chat-box">
-    <div class="messages" id="messages"></div><div class="input-area">
-    <input type="text" id="input" placeholder="Xabar yozing..." />
-    <button onclick="send()">➤</button>
-</div>
+<body>
 
-</div><script>
-const messages = document.getElementById("messages");
-const input = document.getElementById("input");
+    <div class="container">
+        
+        <div id="auth-view" class="auth-container glass-card">
+            <h2>NXL Hamyoniga Kirish</h2>
+            <input type="text" id="api-key-input" placeholder="Maxfiy API kalitingizni kiriting" required>
+            
+            <button class="login-btn" onclick="loginWithApiKey()">LOGIN</button>
+            <button class="register-btn" onclick="registerNewUser()">Yangi Roʻyxatdan Oʻtish</button>
+            
+            <p id="auth-message" class="message"></p>
 
-/* ----------------- SEND FUNCTION ----------------- */
-function send() {
-    let text = input.value.trim();
-    if (!text) return;
+            <div id="new-key-display">
+                <p style="font-weight: bold; margin-bottom: 5px;">Maxfiy Kalitingiz (Saqlang!):</p>
+                <span id="generated-key"></span>
+                <button class="copy-btn" onclick="copyApiKey()">Nusxalash</button>
+            </div>
+            
+        </div>
 
-    addMessage(text, "user");
-    input.value = "";
+        <div id="wallet-view" style="display: none;">
+            </div>
 
-    botTyping();
+    </div>
 
-    setTimeout(() => {
-        removeTyping();
-        addMessage(botReply(text), "bot");
-    }, 1500);
-}
+    <script>
+        // 1. Firebase Konfiguratsiyasi
+        const firebaseConfig = {
+          apiKey: "AIzaSyA7VLHdjPqf_tobSiBczGbN8H7YlFwq9Wg",
+          authDomain: "magnetic-alloy-467611-u7.firebaseapp.com",
+          databaseURL: "https://magnetic-alloy-467611-u7-default-rtdb.firebaseio.com",
+          projectId: "magnetic-alloy-467611-u7",
+          storageBucket: "magnetic-alloy-467611-u7.firebasestorage.app",
+          messagingSenderId: "589500919880",
+          appId: "1:589500919880:web:379ef860dd1a3f7151687d",
+          measurementId: "G-7W6PL1ZEQ6"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const database = firebase.database();
+        
+        // HTML elementlari
+        const authView = document.getElementById('auth-view');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const authMessage = document.getElementById('auth-message');
+        const newKeyDisplay = document.getElementById('new-key-display');
+        const generatedKeySpan = document.getElementById('generated-key');
+        
+        let CURRENT_API_KEY = localStorage.getItem('nxl_api_key');
+        
+        // API Kaliti Generatori
+        function generateApiKey() {
+            return 'NXL-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 9);
+        }
+        
+        // 2. Ro'yxatdan O'tish Funksiyasi
+        function registerNewUser() {
+            const newKey = generateApiKey();
+            const initialBalance = 1000.0000;
+            const userRef = database.ref(`users/${newKey}`);
 
-/* ----------------- ADD MESSAGE + NEON + SOUND ----------------- */
-function addMessage(text, type) {
-    let div = document.createElement("div");
-    div.className = "msg " + type;
-    div.innerText = text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
+            authMessage.className = 'message';
+            authMessage.textContent = 'Roʻyxatdan oʻtish...';
+            newKeyDisplay.style.display = 'none';
 
-    neonSoundEffect(div);
-}
+            userRef.set({
+                balance: { NXL: initialBalance },
+                registeredAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                generatedKeySpan.textContent = newKey;
+                apiKeyInput.value = newKey;
+                authMessage.className = 'message';
+                authMessage.textContent = '🥳 Yangi kalit yaratildi. Iltimos, nusxalang va LOGIN tugmasini bosing.';
+                newKeyDisplay.style.display = 'block';
+            }).catch((error) => {
+                authMessage.className = 'message error-message';
+                authMessage.textContent = 'Xato: ' + error.message;
+            });
+        }
 
-/* ----------------- TYPING EFFECT ----------------- */
-let typingDiv;
-function botTyping() {
-    typingDiv = document.createElement("div");
-    typingDiv.className = "typing";
-    typingDiv.innerHTML = `
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-    `;
-    messages.appendChild(typingDiv);
-    messages.scrollTop = messages.scrollHeight;
-}
+        // Kalitni Clipboard'ga nusxalash
+        function copyApiKey() {
+            const keyToCopy = generatedKeySpan.textContent;
+            navigator.clipboard.writeText(keyToCopy).then(() => {
+                alert("Kalit muvaffaqiyatli nusxalandi! Endi uni xavfsiz joyda saqlang.");
+            }).catch(err => {
+                console.error('Nusxalashda xato: ', err);
+                alert("Nusxalash imkonsiz bo'ldi. Kalitni qo'lda nusxalashga harakat qiling: " + keyToCopy);
+            });
+        }
 
-function removeTyping() {
-    if (typingDiv) typingDiv.remove();
-}
+        // 3. API Kaliti Orqali Kirish (YANGILANGAN QISM)
+        function loginWithApiKey() {
+            const apiKey = apiKeyInput.value.trim();
+            authMessage.className = 'message';
+            authMessage.textContent = 'Kalit tekshirilmoqda...';
+            newKeyDisplay.style.display = 'none';
 
-/* ----------------- BOT RESPONSES ----------------- */
-function botReply(msg) {
-    msg = msg.toLowerCase();
-    
-    
-    if (msg.includes("ha qiziq")) return "unda menga ayt sen qiziqayotgan narsani";
-    if (msg.includes("salom")) return "Assalomu alaykum! 😊 Qalaysiz?";
-    if (msg.includes("yaxshi")) return "Zo'r! Yaxshi bo‘lsa xursandman 😄";
-    if (msg.includes("isming")) return "Mening ismim STAR AI🤖✨";
-    if (msg.includes("qalesan")) return "Yaxshi, rahmat 😊 Sizchi?";
-    if (msg.includes("nima qilyapsan")) return "Hozir siz bilan suhbatlashyapman 😎";
-    if (msg.includes("nima gaplar olamda")) return "Aha, salom! 😎 Olamda gaplar xuddi shu qadar – texnologiya tez rivojlanmoqda, odamlar yangi ilovalar yaratish bilan band, kripto va AI mavzulari dolzarb. Sen bilan suhbatda bo‘lish ham shunaqa “alamdagi yangilik” kabi. 😄 Senga qiziqmi, texnologiya yoki boshqa narsalardan gaplashamizmi?";
-    
-    return "Kechirasz botda bu komanda uchun hali funksiya yoʻq";
-}
+            if (!apiKey) {
+                authMessage.className = 'message error-message';
+                authMessage.textContent = 'Iltimos, API kalitini kiriting.';
+                return;
+            }
 
-/* ----------------- NEON BORDER + SOUND EFFECT ----------------- */
-function neonSoundEffect(msgDiv) {
-    msgDiv.style.border = "2px solid";
-    msgDiv.style.borderImage = "linear-gradient(45deg, #00e5ff, #ff00ff, #ffeb3b, #00ff88) 1";
-    msgDiv.style.boxShadow = "0 0 15px #00e5ff, 0 0 25px #ff00ff, 0 0 35px #ffeb3b";
-    msgDiv.style.transition = "0.5s all ease";
+            const userRef = database.ref(`users/${apiKey}`);
+            
+            userRef.once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    // Kirish muvaffaqiyatli
+                    CURRENT_API_KEY = apiKey;
+                    localStorage.setItem('nxl_api_key', apiKey); // Kalitni saqlash
+                    
+                    // YANGI: wallet.html sahifasiga yo'naltirish
+                    window.location.href = 'wallet.html'; 
+                    
+                } else {
+                    // Kalit topilmadi
+                    authMessage.className = 'message error-message';
+                    authMessage.textContent = 'Xato: Bunday API kaliti topilmadi. Roʻyxatdan oʻting yoki kalitni tekshiring.';
+                }
+            }).catch((error) => {
+                authMessage.className = 'message error-message';
+                authMessage.textContent = 'Ulanishda xato: ' + error.message;
+            });
+        }
+        
+        // 4. Tizimdan Chiqish (Bu funksiya endi wallet.html da bo'lishi kerak, lekin bu erda yozilgan)
+        function signOutUser() {
+             // Bu funksiya endi faqat wallet.html da chaqirilishi kerak.
+            CURRENT_API_KEY = null;
+            localStorage.removeItem('nxl_api_key');
+            // Chiqishdan keyin index.html (ya'ni kirish sahifasi) ga qaytarish
+            window.location.href = 'index.html';
+        }
 
-    setTimeout(() => {
-        msgDiv.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
-        msgDiv.style.border = "";
-    }, 1200);
+        // 5. Ilovani Yuklashda Avtomatik Kirish
+        window.onload = function() {
+            if (CURRENT_API_KEY) {
+                // Agar kalit bor bo'lsa, uni tekshirib wallet.html ga o'tkazishga harakat qilamiz
+                // Ammo hozir bu index.html, shuning uchun LOGIN tugmasini bosishga majburlash yaxshiroq
+                apiKeyInput.value = CURRENT_API_KEY;
+                authMessage.textContent = 'Oldingi kalit topildi. LOGIN tugmasini bosing.';
+            }
+        };
 
-    const audio = new Audio("https://freesound.org/data/previews/256/256113_3263906-lq.mp3");
-    audio.play();
-}
-</script></body>
+        // Bu funksiyalar endi wallet.html da bo'lishi kerak, shuning uchun ularni bu yerdan olib tashlaymiz
+        /* function initializeWalletData(apiKey) { ... }
+        function createTransactionItem(tx) { ... }
+        function simulateTransaction(type) { ... }
+        */
+    </script>
+</body>
 </html>

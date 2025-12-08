@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+   ​<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NXL Yuborish</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        /* =================== Global & Minimalist Stillar (wallet.html ga mos) =================== */
+        :root {
+            --dark-bg: #121212; 
+            --card-bg: #1e1e1e; 
+            --primary-color: #03DAC6; /* Zamonaviy Turkuaz Accent */
+            --secondary-color: #BB86FC; /* Binafsha Accent */
+            --sub-text: #A0A0A0; 
+            --shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg); 
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            color: white; 
+            padding-top: 40px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-size: 2em;
+            font-weight: 700;
+            margin: 0;
+            color: white;
+        }
+        .back-btn {
+             background: transparent; 
+             color: var(--sub-text); 
+             border: 1px solid var(--sub-text);
+             padding: 8px 15px; 
+             border-radius: 8px; 
+             cursor: pointer;
+             font-weight: 500;
+             transition: all 0.2s;
+        }
+        .back-btn:hover { 
+            background-color: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+        }
+
+        /* Yuborish Formasi Stili */
+        .send-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px 20px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--sub-text);
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #262626;
+            color: white;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        /* Tranzaksiya Ma'lumotlari (Komissiya, Jami) */
+        .summary {
+            background-color: #262626;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 25px;
+            font-size: 0.95em;
+        }
+        .summary p {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .summary .total {
+            font-weight: bold;
+            color: var(--primary-color);
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        /* Yuborish Tugmasi */
+        .send-btn {
+            width: 100%;
+            background-color: var(--secondary-color);
+            color: var(--dark-bg);
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s;
+        }
+        .send-btn:hover {
+            background-color: #D6BCFF;
+            box-shadow: 0 0 15px rgba(187, 134, 252, 0.7);
+        }
+        .send-btn:disabled {
+            background-color: #444;
+            color: #777;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Habarlar */
+        #message-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .error {
+            background-color: rgba(233, 69, 96, 0.2);
+            color: #E94560;
+            border: 1px solid #E94560;
+        }
+        .success {
+            background-color: rgba(3, 218, 198, 0.2);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>NXL Yuborish 📤</h1>
+            <button class="back-btn" onclick="goToWallet()">🔙 Hamyonga qaytish</button>
+        </header>
+
+        <div class="send-card">
+            <div id="loading-message" style="text-align: center; color: var(--sub-text);">Balans yuklanmoqda...</div>
+            
+            <div id="send-form-view" style="display: none;">
+                <div class="form-group">
+                    <label for="recipient-address">Qabul qiluvchi Hamyon Manzili (API Key)</label>
+                    <input type="text" id="recipient-address" placeholder="NXL-... kalitini kiriting" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Miqdor (NXL)</label>
+                    <input type="number" id="amount" placeholder="0.0000" min="0.0001" step="0.0001" oninput="calculateTotal()" required>
+                </div>
+                
+                <p style="color: var(--sub-text); font-size: 0.9em; text-align: right;">Joriy Balans: <span id="current-balance">0.0000 NXL</span></p>
+
+                <div class="summary">
+                    <p>Yuborilayotgan miqdor: <span id="send-amount">0.0000 NXL</span></p>
+                    <p>Komissiya (1%): <span id="fee-amount">0.0000 NXL</span></p>
+                    <p class="total">Jami Yechiladigan Miqdor: <span id="total-deducted">0.0000 NXL</span></p>
+                </div>
+                
+                <div id="message-box"></div>
+
+                <button class="send-btn" id="send-button" onclick="sendNXL()">Yuborish</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Firebase Konfiguratsiyasi (wallet.html dagi bilan bir xil)
+        const firebaseConfig = {
+          apiKey: "AIzaSyA7VLHdjPqf_tobSiBczGbN8H7YlFwq9Wg",
+          authDomain: "magnetic-alloy-467611-u7.firebaseapp.com",
+          databaseURL: "https://magnetic-alloy-467611-u7-default-rtdb.firebaseio.com",
+          projectId: "magnetic-alloy-467611-u7",
+          storageBucket: "magnetic-alloy-467611-u7.firebasestorage.app",
+          messagingSenderId: "589500919880",
+          appId: "1:589500919880:web:379ef860dd1a3f7151687d",
+          measurementId: "G-7W6PL1ZEQ6"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const database = firebase.database();
+        const COMMISSION_RATE = 0.01; // 1% komissiya
+
+        // HTML elementlari
+        const recipientAddressInput = document.getElementById('recipient-address');
+        const amountInput = document.getElementById('amount');
+        const sendAmountSpan = document.getElementById('send-amount');
+        const feeAmountSpan = document.getElementById('fee-amount');
+        const totalDeductedSpan = document.getElementById('total-deducted');
+        const currentBalanceSpan = document.getElementById('current-balance');
+        const messageBox = document.getElementById('message-box');
+        const sendButton = document.getElementById('send-button');
+        const sendFormView = document.getElementById('send-form-view');
+        const loadingMessage = document.getElementById('loading-message');
+
+        let CURRENT_API_KEY = localStorage.getItem('nxl_api_key'); 
+        let currentBalance = 0;
+        
+        // ===================================================
+        // 2. Balansni Yuklash
+        // ===================================================
+
+        function loadBalance() {
+            if (!CURRENT_API_KEY) {
+                displayMessage("Xato: Kirish kaliti topilmadi. Qaytadan kiring.", 'error');
+                sendButton.disabled = true;
+                return;
+            }
+
+            const balanceRef = database.ref(`users/${CURRENT_API_KEY}/balance/NXL`);
+            
+            loadingMessage.style.display = 'block';
+            sendFormView.style.display = 'none';
+
+            balanceRef.once('value', (snapshot) => {
+                loadingMessage.style.display = 'none';
+                sendFormView.style.display = 'block';
+                
+                currentBalance = parseFloat(snapshot.val() || 0);
+                currentBalanceSpan.textContent = currentBalance.toFixed(4) + ' NXL';
+                
+                calculateTotal(); // Yuklagandan keyin hisoblashni ishga tushirish
+            }, (error) => {
+                displayMessage("Balansni yuklashda xato: " + error.message, 'error');
+                sendButton.disabled = true;
+            });
+        }
+        
+        // ===================================================
+        // 3. Hisoblash Funksiyalari
+        // ===================================================
+
+        function calculateTotal() {
+            const amount = parseFloat(amountInput.value);
+            
+            if (isNaN(amount) || amount <= 0) {
+                sendAmountSpan.textContent = '0.0000 NXL';
+                feeAmountSpan.textContent = '0.0000 NXL';
+                totalDeductedSpan.textContent = '0.0000 NXL';
+                sendButton.disabled = true;
+                return;
+            }
+
+            const fee = amount * COMMISSION_RATE;
+            const totalDeducted = amount + fee;
+
+            sendAmountSpan.textContent = amount.toFixed(4) + ' NXL';
+            feeAmountSpan.textContent = fee.toFixed(4) + ' NXL';
+            totalDeductedSpan.textContent = totalDeducted.toFixed(4) + ' NXL';
+
+            // Balansni tekshirish
+            if (totalDeducted > currentBalance) {
+                displayMessage(`Balansingiz yetarli emas. (${totalDeducted.toFixed(4)} NXL kerak)`, 'error');
+                sendButton.disabled = true;
+            } else {
+                hideMessage();
+                sendButton.disabled = false;
+            }
+        }
+        
+        // ===================================================
+        // 4. Yuborish (Tranzaksiya) Funksiyasi
+        // ===================================================
+
+        async function sendNXL() {
+            const recipientKey = recipientAddressInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+            const fee = amount * COMMISSION_RATE;
+            const totalDeducted = amount + fee;
+
+            sendButton.disabled = true;
+            displayMessage("Tranzaksiya amalga oshirilmoqda...", 'loading');
+
+            if (!recipientKey || isNaN(amount) || amount <= 0 || totalDeducted > currentBalance || recipientKey === CURRENT_API_KEY) {
+                displayMessage("Kiritilgan ma'lumotlar noto'g'ri yoki balans yetarli emas. Iltimos tekshiring.", 'error');
+                sendButton.disabled = false;
+                return;
+            }
+
+            // A) Qabul qiluvchi manzilning mavjudligini tekshirish
+            const recipientRef = database.ref(`users/${recipientKey}/balance/NXL`);
+            
+            try {
+                const recipientSnapshot = await recipientRef.once('value');
+                
+                if (!recipientSnapshot.exists()) {
+                    displayMessage("Xato: Bunday manzil mavjud emas. Manzilni tekshiring.", 'error');
+                    sendButton.disabled = false;
+                    return;
+                }
+
+                // B) Pul O'tkazmasini Amalga Oshirish
+                
+                // 1. Jo'natuvchi balansini yangilash (kamaytirish)
+                const senderRef = database.ref(`users/${CURRENT_API_KEY}/balance/NXL`);
+                const newSenderBalance = currentBalance - totalDeducted;
+                await senderRef.set(newSenderBalance);
+
+                // 2. Qabul qiluvchi balansini yangilash (ko'paytirish)
+                const currentRecipientBalance = parseFloat(recipientSnapshot.val() || 0);
+                const newRecipientBalance = currentRecipientBalance + amount;
+                await recipientRef.set(newRecipientBalance);
+                
+                // 3. Tranzaksiya yozuvlarini qo'shish (Jo'natuvchi)
+                const senderTxRef = database.ref(`users/${CURRENT_API_KEY}/transactions`).push();
+                await senderTxRef.set({
+                    type: "Chiqim",
+                    amount: totalDeducted, // Yechilgan jami miqdor
+                    to: recipientKey,
+                    timestamp: Date.now()
+                });
+                
+                // 4. Tranzaksiya yozuvlarini qo'shish (Qabul qiluvchi)
+                const recipientTxRef = database.ref(`users/${recipientKey}/transactions`).push();
+                await recipientTxRef.set({
+                    type: "Kirim",
+                    amount: amount, // Qabul qilingan asosiy miqdor (komissiyasiz)
+                    from: CURRENT_API_KEY,
+                    timestamp: Date.now()
+                });
+
+                // C) Muvaffaqiyatli xabar
+                displayMessage(`Muvaffaqiyat! ${amount.toFixed(4)} NXL yuborildi. Komissiya: ${fee.toFixed(4)} NXL.`, 'success');
+                sendButton.disabled = false;
+                
+                // Balansni va maydonlarni tozalash
+                amountInput.value = '';
+                recipientAddressInput.value = '';
+                loadBalance(); // Balansni qayta yuklash
+                
+            } catch (error) {
+                console.error("Tranzaksiya xatosi:", error);
+                displayMessage("Tranzaksiya bajarilmadi: " + error.message, 'error');
+                sendButton.disabled = false;
+            }
+        }
+        
+        // ===================================================
+        // 5. Yordamchi va Navigatsiya Funksiyalari
+        // ===================================================
+
+        function displayMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = ''; 
+            messageBox.classList.add('status-message'); // Umumiy stil
+            messageBox.classList.add(type); // Maxsus stil (error/success)
+            messageBox.style.display = 'block';
+        }
+        
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        function goToWallet() {
+            window.location.href = 'wallet.html';
+        }
+
+        // Sahifa yuklanganda ishga tushirish
+        window.onload = () => {
+             // Auth tekshiruvi: Agar kalit bo'lmasa, qayta yo'naltiramiz
+             if (!CURRENT_API_KEY) {
+                goToWallet(); 
+                return;
+             }
+             loadBalance();
+        };
+
+    </script>
+</body>
+</html>
