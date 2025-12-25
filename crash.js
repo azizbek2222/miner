@@ -13,8 +13,8 @@ const db = getDatabase(app);
 let balance = 0;
 let betAmount = 0;
 let isPlaying = false;
-let gameStatus = "waiting";
 let multiplier = 1;
+let status = "waiting";
 
 const balanceEl = document.getElementById("user-balance");
 const multiplierEl = document.getElementById("multiplier-display");
@@ -34,32 +34,34 @@ onAuthStateChanged(auth,(user)=>{
   });
 });
 
-// 🔥 REAL-TIME GAME
-onValue(ref(db,"game"),snap=>{
+// 🔥 GAME STATE
+onValue(ref(db,"game/state"),snap=>{
   if(!snap.exists()) return;
   const g=snap.val();
 
-  gameStatus=g.status;
   multiplier=g.multiplier||1;
+  status=g.status;
 
-  if(g.aiEnabled!==true){
-    multiplierEl.innerText="O‘yin to‘xtagan";
-    betBtn.disabled=true;
-    cashoutBtn.disabled=true;
-    return;
-  }
-
-  if(gameStatus==="flying"){
+  if(status==="flying"){
     multiplierEl.innerText=multiplier.toFixed(2)+"x";
     multiplierEl.style.color="#ffffff";
     betBtn.disabled=false;
   }
 
-  if(gameStatus==="crashed"){
+  if(status==="crashed"){
     multiplierEl.innerText="CRASH";
     multiplierEl.style.color="#ef4444";
     cashoutBtn.disabled=true;
     isPlaying=false;
+  }
+});
+
+// 🔒 AI CONTROL
+onValue(ref(db,"game/control/aiEnabled"),snap=>{
+  if(snap.val()!==true){
+    multiplierEl.innerText="O‘yin to‘xtatilgan";
+    betBtn.disabled=true;
+    cashoutBtn.disabled=true;
   }
 });
 
@@ -68,7 +70,7 @@ betBtn.onclick=async()=>{
   betAmount=Number(betInput.value);
   if(betAmount<1000) return alert("Minimal 1000");
   if(betAmount>balance) return alert("Balans yetarli emas");
-  if(gameStatus!=="flying") return alert("Raund kuting");
+  if(status!=="flying") return alert("Raund kuting");
 
   await update(ref(db,"users/"+uid),{
     balance:balance-betAmount
