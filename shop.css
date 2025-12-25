@@ -1,0 +1,41 @@
+.shop-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.miner-card {
+    background: #0f3460;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid #16213e;
+    transition: 0.3s;
+}
+
+.miner-icon {
+    font-size: 40px;
+    color: #e94560;
+    margin-bottom: 10px;
+}
+
+.miner-icon.blue { color: #00d2ff; }
+.miner-icon.gold { color: #ffd700; }
+
+.miner-card h4 { margin: 10px 0; font-size: 18px; }
+.miner-card p { margin: 5px 0; color: #ccc; }
+.miner-card .profit { color: #28a745; font-weight: bold; }
+
+.miner-card button {
+    margin-top: 15px;
+    background: #e94560;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+}
+
+.miner-card button:active { transform: scale(0.95); }
