@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash Game</title>
+    <link rel="stylesheet" href="crash.css">
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="header">
+            <div class="balance-card">
+                Balans: <span id="user-balance">0</span> so'm
+            </div>
+        </div>
+
+        <div class="display-section">
+            <div id="multiplier-display">1.00x</div>
+        </div>
+
+        <div class="control-panel">
+            <input type="number" id="bet-amount" placeholder="Minimal 1000" min="1000">
+            <button id="bet-btn">TIKISH</button>
+            <button id="cashout-btn" disabled>YUTUQNI OLISH</button>
+        </div>
+    </div>
+
+    <script type="module" src="crash.js"></script>
+</body>
+</html>

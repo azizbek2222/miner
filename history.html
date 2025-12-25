@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amallar tarixi</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="history.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="user-info">
+                <i class="fas fa-history" style="color: #e94560; margin-right: 10px;"></i>
+                <span>Tarix</span>
+            </div>
+            <div class="balance-card">
+                <i class="fas fa-wallet"></i>
+                <span id="balance">0 so'm</span>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="filterHistory('all')">Hammasi</button>
+                <button class="tab-btn" onclick="filterHistory('deposit')">Depozit</button>
+                <button class="tab-btn" onclick="filterHistory('withdraw')">Yechish</button>
+            </div>
+
+            <div id="historyList" class="history-list">
+                <p class="loading">Yuklanmoqda...</p>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="location.href='home.html'">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="location.href='shop.html'">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Do'kon</span>
+            </button>
+            <button class="nav-item active" onclick="location.href='history.html'">
+                <i class="fas fa-history"></i>
+                <span>Tarix</span>
+            </button>
+            <button class="nav-item" onclick="location.href='profile.html'">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <script type="module" src="history.js"></script>
+</body>
+</html>

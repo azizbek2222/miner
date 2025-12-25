@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hisobni to'ldirish</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="deposit.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="user-info">
+                <i class="fas fa-arrow-left" onclick="window.history.back()" style="cursor:pointer;"></i>
+                <span>To'ldirish</span>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="card-info">
+                <p>Karta raqami (Test):</p>
+                <h3 id="cardNumber">8600 1234 5678 9010</h3>
+                <button class="copy-btn" onclick="copyCard()">Nusxa olish</button>
+            </div>
+
+            <div class="deposit-form">
+                <input type="number" id="amount" placeholder="Miqdorni kiriting (so'm)" required>
+                <button id="submitBtn">Tasdiqlash so'rovini yuborish</button>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="deposit.js"></script>
+</body>
+</html>

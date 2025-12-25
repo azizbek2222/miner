@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O'yinlar</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="games.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="top-bar">
+            <div class="user-info">
+                <i class="fas fa-gamepad" style="color: #e94560; font-size: 20px;"></i>
+                <span style="margin-left: 10px;">O'yinlar</span>
+            </div>
+            <div class="balance-card">
+                <i class="fas fa-wallet"></i>
+                <span id="balance">0 so'm</span>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="games-list">
+                <div class="game-item" onclick="location.href='crash.html'">
+                    <div class="game-icon crash-bg">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="game-info">
+                        <h3>CRASH</h3>
+                        <p>Koeffitsient ko'tarilishini kuting!</p>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+
+                <div class="game-item" onclick="location.href='mines.html'">
+                    <div class="game-icon mines-bg">
+                        <i class="fas fa-bomb"></i>
+                    </div>
+                    <div class="game-info">
+                        <h3>MINES</h3>
+                        <p>Minalarni topmasdan yutib oling!</p>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="location.href='home.html'">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="location.href='shop.html'">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Do'kon</span>
+            </button>
+            <button class="nav-item active">
+                <i class="fas fa-gamepad"></i>
+                <span>O'yinlar</span>
+            </button>
+            <button class="nav-item" onclick="location.href='profile.html'">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <script type="module" src="games.js"></script>
+</body>
+</html>
